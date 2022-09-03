@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="direct" />
+        <module name="timer" />
+        <module name="file" />
+        <module name="file-watch" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="direct" target="11" />
+      <module name="file" target="11" />
+      <module name="file-watch" target="11" />
+      <module name="timer" target="11" />
+      <module name="wrapper" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="direct" options="-parameters" />
+      <module name="file" options="-parameters" />
+      <module name="file-watch" options="-parameters" />
+      <module name="timer" options="-parameters" />
+    </option>
+  </component>
+</project>

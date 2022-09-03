@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/camel-spring-boot.iml" filepath="$PROJECT_DIR$/camel-spring-boot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/direct/direct.iml" filepath="$PROJECT_DIR$/direct/direct.iml" />
+      <module fileurl="file://$PROJECT_DIR$/file/file.iml" filepath="$PROJECT_DIR$/file/file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/file-watch/file-watch.iml" filepath="$PROJECT_DIR$/file-watch/file-watch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/timer/timer.iml" filepath="$PROJECT_DIR$/timer/timer.iml" />
+    </modules>
+  </component>
+</project>
