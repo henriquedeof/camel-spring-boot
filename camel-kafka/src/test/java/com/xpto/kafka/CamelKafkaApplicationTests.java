@@ -1,4 +1,4 @@
-package com.xpto;
+package com.xpto.kafka;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

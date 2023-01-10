@@ -18,11 +18,72 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-spring-boot-starter</artifactId>
             <version>3.20.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-kafka-starter</artifactId>
+            <version>3.20.0</version>
+            <!-- use the same version as your Camel core version -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-aws2-sqs-starter</artifactId>
+            <version>3.20.0</version>
+            <!-- use the same version as your Camel core version -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-aws2-sts-starter</artifactId>
+            <version>3.20.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jsonpath-starter -->
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-jsonpath-starter</artifactId>
+            <version>3.20.0</version>
+        </dependency>
 
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+<!--        https://stackoverflow.com/questions/28082380/getting-error-while-creating-rest-service-using-apache-camel -->
+<!--        NOTE THE CORRECT ONE: https://mvnrepository.com/artifact/org.apache.camel/camel-jsonpath-starter -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel.springboot</groupId>-->
+<!--            <artifactId>camel-http-starter</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jackson</artifactId>
+            <version>3.20.1</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel</groupId>-->
+<!--            <artifactId>camel-aws2-sqs</artifactId>-->
+<!--            <version>3.20.1</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel</groupId>-->
+<!--            <artifactId>camel-aws2-sts</artifactId>-->
+<!--            <version>3.20.0</version>-->
+<!--        </dependency>-->
+
+
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

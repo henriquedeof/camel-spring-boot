@@ -1,0 +1,124 @@
+================================================ Migrating Camel 2 to 3 ================================================
+- https://camel.apache.org/manual/camel-3-migration-guide.html
+
+
+
+=============================================================================================================================
+============================================================ DQL ============================================================
+=============================================================================================================================
+- The main task is to handle message failure.
+- On AWS console, I just need to create a "normal" queue and give a name like: books-dead-letter-queue
+    - Yet on the "edit" of the MAIN queue, go to "Dead-letter queue" section and click on "Enabled" and select the DLQ.
+    - NOTE: For SRE, would be a good idea to set CloudWatch alarms.
+- ReceiveCount for a message exceeds the maxReceiveCount for a queue, AWS sends this message to DLQ (with its original message ID).
+
+
+- DLQ Message Redrive -
+    - Send all the messages that are on the DQL to the Main queue.
+    - On the DQL, click on button "Start DLQ redrive" >> "Redrive to a custom destination" (select the main queue) >> "DLQ redrive"
+        - Currently, there is no way to do that programmatically.
+
+
+=============================================================================================================================================
+============================================================ Handling Exceptions ============================================================
+=============================================================================================================================================
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+- https://camel.apache.org/manual/exception-clause.html#_advanced_usage_of_exception_clause
+
+// default should errors go to mock:error
+errorHandler(deadLetterChannel("mock:error").redeliveryDelay(0));
+
+// if a MyTechnicalException is thrown we will not try to redeliver and we mark it as handled so the caller does not get a failure since
+// we have no to then the exchange will continue to be routed to the normal error handler destination that is mock:error as defined above
+// onException(MyTechnicalException.class).maximumRedeliveries(0).handled(true);
+
+// if a MyFunctionalException is thrown we do not want Camel to redelivery but handle it our self using our bean myOwnHandler, then the exchange is not routed to the default error (mock:error)
+onException(MyFunctionalException.class).maximumRedeliveries(0).handled(true).to("bean:myOwnHandler");
+
+// here we route message to our service bean
+from("direct:start").choice().when().xpath("//type = 'myType'").to("bean:myServiceBean").end().to("mock:result");
+
+
+NOTE: Be careful when .end() is used as we could change the global exception policies to be pure route specific
+    - https://camel.apache.org/manual/exception-clause.html#_must_use_end_for_route_specific_exception_policies
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+- https://camel.apache.org/manual/exception-clause.html#_using_fine_grained_selection_using_onwhen_predicate
+
+errorHandler(deadLetterChannel("mock:error").redeliveryDelay(0).maximumRedeliveries(3));
+
+// here we define our onException to catch MyUserException when there is a header[user] on the exchange that is not null
+onException(MyUserException.class).onWhen(header("user").isNotNull()).maximumRedeliveries(1)
+    // setting delay to zero is just to make unit testing faster
+    .redeliveryDelay(0).to(ERROR_USER_QUEUE);
+
+// here we define onException to catch MyUserException as a kind of fallback when the above did not match.
+// Notice: The order how we have defined these onException is important as Camel will resolve in the same order as they have been defined
+onException(MyUserException.class).maximumRedeliveries(2)
+    // setting delay to zero is just to make unit testing faster
+    .redeliveryDelay(0).to(ERROR_QUEUE);
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+- https://camel.apache.org/manual/exception-clause.html#_using_fine_grained_retry_using_retrywhile_predicate
+
+// we want to use a predicate for retries so we can determine in our bean when retry should stop, notice it will overrule the global
+// error handler where we defined at most 1 redelivery attempt. Here we will continue until the predicate returns false
+onException(MyFunctionalException.class).retryWhile(method("myRetryHandler")).handled(true).transform().constant("Sorry");
+
+public class MyRetryBean {
+    // using bean binding we can bind the information from the exchange to the types we have in our method signature
+    public boolean retry(@Header(Exchange.REDELIVERY_COUNTER) Integer counter) {
+        // NOTE: counter is the redelivery attempt, will start from 1 we can of course do what ever we want to determine the result but this is a unit test so we end after 3 attempts
+        return counter < 3;
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+- https://camel.apache.org/components/3.20.x/aws2-sqs-component.html#_jms_style_selectors
+
+// JMS-STYLE SELECTORS
+from("aws2-sqs://MyQueue?amazonSQSClient=#client&defaultVisibilityTimeout=5000&deleteIfFiltered=false&deleteAfterRead=false")
+.filter("${header.login} == true")
+  .setProperty(Sqs2Constants.SQS_DELETE_FILTERED, constant(true))
+  .to("mock:filter");
+
+
+
+
+
+-------------- Filtering --------------
+- Programmatically: https://camel.apache.org/components/3.20.x/eips/filter-eip.html
+    - https://camel.apache.org/components/3.18.x/languages/jsonpath-language.html
+    - Based on Router: https://camel.netlify.app/components/latest/eips/content-based-router-eip.html
+
+
+- https://access.redhat.com/documentation/en-us/red_hat_jboss_fuse/6.3/html/apache_camel_development_guide/msgrout-msgfilter
+
+
+------------ Simple for expressions ----------
+- https://livebook.manning.com/book/camel-in-action-second-edition/a-simple-the-expression-language/v-14/9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
