@@ -132,7 +132,7 @@ public class KafkaRoute extends RouteBuilder {
                 //.log("${body}") // Result is com.xpto.kafka.model.Book@2c7eb5af because I do not have toString() implemented.
 //                .process(bookProcessor)
 //                .setBody().method()
-                //.to("aws2-sqs://books-queue?accessKey=RAW(AKIAWDZJESV6XKCDJWFQ)&secretKey=RAW(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)&region=ap-southeast-2")
+                //.to("aws2-sqs://books-queue?accessKey=RAW(asdasdasd)&secretKey=RAW(qweqweqwe)&region=ap-southeast-2")
                 //.to("aws2-sqs://arn:aws:sqs:ap-southeast-2:420456207741:books-queue?amazonSQSClient=#sqsClient")
         ;
 
