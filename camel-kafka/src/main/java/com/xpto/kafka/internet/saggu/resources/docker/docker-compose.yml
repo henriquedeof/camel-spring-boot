@@ -1,0 +1,113 @@
+version: '3.9'
+
+networks:
+  metrics:
+    name: saggu.uk
+
+services:
+  dev:
+    container_name: jss
+    image: tianon/true:latest
+    depends_on:
+      - rabbitmq
+
+  monitor:
+    image: tianon/true:latest
+    depends_on:
+        - dev
+        - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  saggu-camel:
+    container_name: saggu-camel
+    image: saggu/camel
+    ports:
+      - 8080:8080
+    networks:
+      - metrics
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - metrics
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - metrics
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: 'rabbitmq-ui'
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  # Web: http://localhost:8161/ (admin/admin)
+  activemq:
+    image: rmohr/activemq
+    container_name: activemq
+    ports:
+      - 61616:61616
+      - 8161:8161
+
+  tomcat:
+    #image: tomcat:8.5
+    image: tomcat
+    container_name: tomcat
+    ports:
+      - 8080:8080
+    volumes:
+      - ./tomcat/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+      - ./tomcat/context.xml:/tmp/context.xml
+      - ./tomcat/init.sh:/tmp/init.sh
+    # command: /bin/bash -c "mv /usr/local/tomcat/webapps /usr/local/tomcat/webapps2;mv /usr/local/tomcat/webapps.dist /usr/local/tomcat/webapps; cp /tmp/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml"
+    # Above command not working so run this after docker compose
+    # docker exec -i tomcat sh -c "/tmp/init.sh"
+    #To copy a war file: docker cp camel-tutorial.war tomcat://usr/local/tomcat/webapps/
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+      #URL	jdbc:postgresql://localhost:5432/postgres
